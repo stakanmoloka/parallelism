@@ -65,7 +65,7 @@ int main() {
         auto end = std::chrono::steady_clock::now();    
         std::chrono::duration<double> omp_time = end - start;
         
-        std::cout << "Elapsed time for " << thread << " threads: " << omp_time.count() << " sec. " << "S = "<<serial_time.count() /omp_time.count()  <<"m=n="<<m << std::endl;
+        std::cout << "Elapsed time for " << thread << " threads: " << omp_time.count() << " sec. " << "S = "<<serial_time.count() /omp_time.count()  <<" m = n = "<<m << std::endl;
     }
 
     free(a);
@@ -102,7 +102,7 @@ int main() {
         auto end = std::chrono::steady_clock::now();    
         std::chrono::duration<double> omp_time = end - start;
         
-        std::cout << "Elapsed time for " << thread << " threads: " << omp_time.count() << " sec. " << "S = "<<serial_time.count() /omp_time.count()  <<"m=n="<<m << std::endl;
+        std::cout << "Elapsed time for " << thread << " threads: " << omp_time.count() << " sec. " << "S = "<<serial_time.count() /omp_time.count()  <<" m = n = "<<m << std::endl;
     }
     return 0;
 }
