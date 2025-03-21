@@ -11,7 +11,6 @@
 int N = 4000;
 int iterations = 5000;
 
-// Функция для вычисления суммы вектора
 double sum_of_vector(const std::vector<double>& x_new, const std::vector<double>& x, int thread) {
     double sum = 0.0;
     #pragma omp parallel for schedule(guided, 20) reduction(+:sum) num_threads(thread)
@@ -21,7 +20,6 @@ double sum_of_vector(const std::vector<double>& x_new, const std::vector<double>
     return sqrt(sum);
 }
 
-// Изменение функции для работы с одномерными векторами вместо двумерных
 std::vector<double>& simple_iteration(std::vector<double>& A, const std::vector<double>& b, int thread) {
     std::vector<double> x(N, 0.0);
     std::vector<double> x_new(N, 0.0);
@@ -31,7 +29,7 @@ std::vector<double>& simple_iteration(std::vector<double>& A, const std::vector<
         for (int i = 0; i < N; i++) {
             double sum = 0.0;
             for (int j = 0; j < N; j++) {
-                sum += A[i * N + j] * x[j]; // Обращение к элементам матрицы в одномерном векторе
+                sum += A[i * N + j] * x[j]; 
             }
             x_new[i] = x[i] - 0.00001 * (sum - b[i]);
         }
@@ -52,29 +50,25 @@ std::vector<double>& simple_iteration(std::vector<double>& A, const std::vector<
 }
 
 int main() {
-    // Используем одномерный вектор для матрицы A (матрица N x N хранится в одномерном массиве)
-    std::vector<double> A(N * N, 1.0); // Массив для хранения элементов матрицы
-    std::vector<double> b(N, N + 1.0);  // Вектор правой части
+    std::vector<double> A(N * N, 1.0); 
+    std::vector<double> b(N, N + 1.0);  
     std::ofstream file("var2.csv");
 
-    // Заполнение диагональных элементов матрицы значением 2
     for (int i = 0; i < N; i++) {
-        A[i * N + i] = 2.0;  // Диагональ
+        A[i * N + i] = 2.0; 
     }
 
-    // Запуск с 1 потоком
     auto start = std::chrono::steady_clock::now();
-    std::vector<double>& res = simple_iteration(A, b, 1);  // Работает с ссылкой
+    std::vector<double>& res = simple_iteration(A, b, 1);  
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> time_1 = end - start;
     std::cout << "time: " << time_1.count() << " for " << 1 << " threads" << std::endl;
     file << time_1.count() << "\n";
 
-    // Запуск с несколькими потоками
     int threads = omp_get_num_procs();
     for (int thread = 2; thread <= threads; thread++) {
         auto start = std::chrono::steady_clock::now();
-        std::vector<double>& res = simple_iteration(A, b, thread);  // Работает с ссылкой
+        std::vector<double>& res = simple_iteration(A, b, thread); 
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> time = end - start;
         std::cout << "time: " << time.count() << " for " << thread << " threads " << "S: " << time_1.count() / time.count() << std::endl;
