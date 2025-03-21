@@ -84,15 +84,21 @@ void client_sin(Server<double>& server, int task_count, const std::string& filen
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dist(0.0, M_PI);
+    std::unordered_map<size_t, double> task_data; 
 
     std::vector<size_t> task_ids;
     for (int i = 0; i < task_count; ++i) {
         double arg = dist(gen);
-        task_ids.push_back(server.add_task([arg]() { return std::sin(arg); }));
+        size_t id = server.add_task([arg]() { return std::sin(arg); });
+        
+        task_ids.push_back(id);
+        task_data[id] = {arg};  // Запоминаем аргументы
     }
 
     for (size_t id : task_ids) {
-        file << "sin: " << server.request_result(id) << "\n";
+        auto arg = task_data[id];
+        double result = server.request_result(id);
+        file << "id: " << id << ", arg: " << arg << ", sin: " << result << "\n";
     }
     file.close();
 }
@@ -102,15 +108,21 @@ void client_sqrt(Server<double>& server, int task_count, const std::string& file
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dist(1.0, 100.0);
+    std::unordered_map<size_t, double> task_data; 
 
     std::vector<size_t> task_ids;
     for (int i = 0; i < task_count; ++i) {
         double arg = dist(gen);
-        task_ids.push_back(server.add_task([arg]() { return std::sqrt(arg); }));
+        size_t id = server.add_task([arg]() { return std::sqrt(arg); });
+        
+        task_ids.push_back(id);
+        task_data[id] = {arg};  // Запоминаем аргументы
     }
 
     for (size_t id : task_ids) {
-        file << "sqrt: " << server.request_result(id) << "\n";
+        auto arg = task_data[id];
+        double result = server.request_result(id);
+        file << "id: " << id << ", arg: " << arg << ", sqrt: " << result << "\n";
     }
     file.close();
 }
@@ -119,20 +131,30 @@ void client_pow(Server<double>& server, int task_count, const std::string& filen
     std::ofstream file(filename);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dist(1.0, 10.0);
+    std::uniform_real_distribution<> dist1(1.0, 10.0);
+    std::uniform_real_distribution<> dist2(1.0, 5.0);
+
+    std::unordered_map<size_t, std::pair<double, double>> task_data;  // Храним аргументы
 
     std::vector<size_t> task_ids;
     for (int i = 0; i < task_count; ++i) {
-        double base = dist(gen);
-        double exponent = dist(gen);
-        task_ids.push_back(server.add_task([base, exponent]() { return std::pow(base, exponent); }));
+        double base = dist1(gen);
+        double exponent = dist2(gen);
+        size_t id = server.add_task([base, exponent]() { return std::pow(base, exponent); });
+        
+        task_ids.push_back(id);
+        task_data[id] = {base, exponent};  // Запоминаем аргументы
     }
 
     for (size_t id : task_ids) {
-        file << "pow: " << server.request_result(id) << "\n";
+        auto [base, exponent] = task_data[id];  // Достаем аргументы
+        double result = server.request_result(id);
+        file << "id: " << id << " base: " << base << " exponent: " << exponent << " pow: " << result << "\n";
     }
+
     file.close();
 }
+
 
 int main() {
     Server<double> server;
